@@ -1,0 +1,20 @@
+import requests
+PIHOLE_API_URL = "http://<raspberry_pi_ip_address>/admin/api.php"
+API_KEY = "<your_api_key>"
+def get_status():
+ response = requests.get(f"{PIHOLE_API_URL}?status&auth={API_KEY}")
+ if response.status_code == 200:
+ print("Pi-hole is active")
+ else:
+ print("Pi-hole is not responding")
+def get_query_count():
+ response = requests.get(f"{PIHOLE_API_URL}?overview&auth={API_KEY}")
+ if response.status_code == 200:
+ data = response.json()
+ print(f"Total Queries: {data['dns_queries_today']}")
+ print(f"Blocked Queries: {data['ads_blocked_today']}")
+ else:
+ print("Error fetching query count")
+if __name__ == "__main__":
+ get_status()
+ get_query_count()

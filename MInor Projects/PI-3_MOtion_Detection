@@ -1,0 +1,35 @@
+import RPi.GPIO as GPIO
+import time
+import picamera
+PIR_PIN = 17
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(PIR_PIN, GPIO.IN)
+camera = picamera.PICamera()
+motion_detected = False
+def capture_image():
+ timestamp = time.strftime("%Y%m%d-%H%M%S")
+ image_path = f"/home/pi/motion_capture_{timestamp}.jpg"
+ camera.capture(image_path)
+ print(f"Motion detected! Image captured: {image_path}")
+def stream_video():
+ print("Starting MJPEG video stream...")
+ os.system("mjpg_streamer -o 'output_http.so -w /usr/local/www -p 8080' -i
+'/dev/video0' &")
+try:
+print("Motion Detection System is starting...")
+ time.sleep(2)
+ while True:
+ if GPIO.input(PIR_PIN):
+ if not motion_detected:
+ print("Motion Detected!")
+ motion_detected = True
+ capture_image()
+ stream_video()
+ else:
+ if motion_detected:
+ print("No Motion Detected!")
+ motion_detected = False
+ time.sleep(1)
+except KeyboardInterrupt:
+ print("Program exited by user.")
+ GPIO.cleanup
